@@ -1,6 +1,6 @@
 # Firehose analytics
 
-[![GoDoc](https://godoc.org/github.com/tj/go-cli-analytics?status.svg)](https://godoc.org/github.com/tj/go-cli-analytics)
+[![GoDoc](https://godoc.org/github.com/matthewmueller/firehose-analytics?status.svg)](https://godoc.org/github.com/matthewmueller/firehose-analytics)
 ![](https://img.shields.io/badge/license-MIT-blue.svg)
 ![](https://img.shields.io/badge/status-stable-green.svg)
 
