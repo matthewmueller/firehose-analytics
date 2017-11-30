@@ -4,7 +4,7 @@
 ![](https://img.shields.io/badge/license-MIT-blue.svg)
 ![](https://img.shields.io/badge/status-stable-green.svg)
 
-Send logs to AWS Firehose. This library first writes the metrics to disk, which you can periodically flush to AWS Firehose. 
+Send events to AWS Firehose. This library first writes the events to disk, which you can periodically flush to AWS Firehose. 
 
 This was built for instrumenting CLI tools, but could be used for anything where you have access to the local filesystem.
 
