@@ -29,6 +29,7 @@ func sesh(t *testing.T) *session.Session {
 
 func TestAnalytics(t *testing.T) {
 	a := analytics.New(&analytics.Config{
+		Prefix:  "app:",
 		Session: sesh(t),
 		Stream:  os.Getenv("FIREHOSE_STREAM_NAME"),
 		Log:     log.Log,

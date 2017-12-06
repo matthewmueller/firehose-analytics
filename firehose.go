@@ -31,6 +31,7 @@ type Event struct {
 type Config struct {
 	Session *session.Session // Session credentials for AWS
 	Stream  string           // Stream we'll publish to on FH
+	Prefix  string           // Prefix the events with a string
 	Log     log.Interface    // Log (optional)
 }
 
@@ -252,7 +253,7 @@ func (a *Analytics) Track(name string, body Body) error {
 
 	return a.events.Encode(&Event{
 		Timestamp: time.Now().UTC().Format(time.RFC3339),
-		Event:     name,
+		Event:     a.Config.Prefix + name,
 		Body:      body,
 	})
 }
