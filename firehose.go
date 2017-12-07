@@ -32,6 +32,7 @@ type Config struct {
 	Session *session.Session // Session credentials for AWS
 	Stream  string           // Stream we'll publish to on FH
 	Prefix  string           // Prefix the events with a string
+	Dir     string           // Dir we'll use. Defaults to stream name
 	Log     log.Interface    // Log (optional)
 }
 
@@ -88,11 +89,17 @@ func (a *Analytics) init() {
 
 // init root directory.
 func (a *Analytics) initRoot() error {
-	root, err := getPath(a.Stream)
+	dir := a.Dir
+	if dir == "" {
+		dir = a.Stream
+	}
+
+	root, err := getPath(dir)
 	if err != nil {
 		return err
 	}
 	a.root = root
+
 	return nil
 }
 
@@ -292,6 +299,11 @@ func (a *Analytics) MaybeFlush(aboveSize int, aboveDuration time.Duration) error
 
 // Flush the events to Segment, removing them from disk.
 func (a *Analytics) Flush() error {
+	// Ignore if we don't have a session
+	if a.Session == nil {
+		return nil
+	}
+
 	if err := a.Close(); err != nil {
 		return errors.Wrap(err, "close error")
 	}
