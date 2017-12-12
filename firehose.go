@@ -2,6 +2,7 @@ package analytics
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -47,7 +48,8 @@ func New(config *Config) *Analytics {
 	config.defaults()
 
 	a := &Analytics{
-		Config: config,
+		Config:  config,
+		globals: Body{},
 	}
 
 	a.init()
@@ -61,6 +63,7 @@ type Analytics struct {
 	userID     string
 	eventsFile *os.File
 	events     *json.Encoder
+	globals    Body
 }
 
 // Initialize:
@@ -252,10 +255,29 @@ func (a *Analytics) Body(key string, value interface{}) Body {
 	return body
 }
 
+// Set global fields included in every event
+// This is not concurrency safe
+func (a *Analytics) Set(body Body) {
+	for k, v := range body {
+		a.globals.Set(k, v)
+	}
+}
+
 // Track event `name` with optional `data`.
 func (a *Analytics) Track(name string, body Body) error {
 	if a.events == nil {
 		return nil
+	}
+
+	if body == nil {
+		body = Body{}
+	}
+
+	// attach any globals
+	for k, v := range a.globals {
+		if body[k] == nil {
+			body.Set(k, v)
+		}
 	}
 
 	return a.events.Encode(&Event{
@@ -302,6 +324,8 @@ func (a *Analytics) Flush() error {
 	// Ignore if we don't have a session
 	if a.Session == nil {
 		return nil
+	} else if a.Stream == "" {
+		return fmt.Errorf("missing stream name")
 	}
 
 	if err := a.Close(); err != nil {
@@ -311,6 +335,8 @@ func (a *Analytics) Flush() error {
 	events, err := a.Events()
 	if err != nil {
 		return errors.Wrap(err, "reading events")
+	} else if len(events) == 0 {
+		return nil
 	}
 
 	var records []*firehose.Record
